@@ -5,6 +5,7 @@
 pipeline {
     agent {
         kubernetes {
+            cloud 'nexops-k8s'
             label 'nexops-agent'
             yaml """
 apiVersion: v1
