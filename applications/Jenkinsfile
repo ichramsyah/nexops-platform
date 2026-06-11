@@ -1,0 +1,161 @@
+// ============================================================
+// NexOps Platform — DevSecOps CI Pipeline (Go Backend + React Frontend)
+// ============================================================
+
+pipeline {
+    agent {
+        kubernetes {
+            label 'nexops-agent'
+            yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins
+  containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+    - name: docker
+      image: docker:dind
+      securityContext:
+        privileged: true
+      env:
+        - name: DOCKER_TLS_CERTDIR
+          value: ""
+      volumeMounts:
+        - name: docker-storage
+          mountPath: /var/lib/docker
+    - name: trivy
+      image: aquasec/trivy:latest
+      command: ['cat']
+      tty: true
+    - name: sonar-scanner
+      image: sonarsource/sonar-scanner-cli:latest
+      command: ['cat']
+      tty: true
+    - name: tools
+      image: alpine/git:latest
+      command: ['cat']
+      tty: true
+  volumes:
+    - name: docker-storage
+      emptyDir: {}
+"""
+        }
+    }
+
+    environment {
+        // GCP & Registry
+        GCP_PROJECT_ID  = "rinemaa-457218"
+        GAR_REGION      = "asia-southeast2"
+        GAR_REPO        = "nexops-app"
+        IMAGE_PREFIX    = "${GAR_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${GAR_REPO}"
+        IMAGE_TAG       = "${BUILD_NUMBER}-${GIT_COMMIT.take(7)}"
+
+        BACKEND_IMAGE   = "${IMAGE_PREFIX}/backend"
+        FRONTEND_IMAGE  = "${IMAGE_PREFIX}/frontend"
+
+        // SonarQube
+        SONAR_HOST      = "http://sonarqube.devops.svc.cluster.local:9000"
+
+        // Credentials
+        GAR_CREDENTIALS     = credentials('gcp-gar-service-account-key')
+        SONAR_TOKEN         = credentials('sonarqube-token')
+        GIT_CREDENTIALS     = credentials('github-pat')
+    }
+
+    options {
+        timeout(time: 45, unit: 'MINUTES')
+        disableConcurrentBuilds()
+        timestamps()
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Trivy FS Scan') {
+            steps {
+                container('trivy') {
+                    sh """
+                        trivy fs --exit-code 0 --severity HIGH,CRITICAL --format table --output trivy-backend.txt ./applications/backend/
+                        trivy fs --exit-code 0 --severity HIGH,CRITICAL --format table --output trivy-frontend.txt ./applications/frontend/
+                    """
+                    archiveArtifacts artifacts: 'trivy-*.txt', fingerprint: true
+                }
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                container('sonar-scanner') {
+                    sh """
+                        sonar-scanner \
+                            -Dsonar.projectKey=nexops-backend \
+                            -Dsonar.projectName="NexOps Backend" \
+                            -Dsonar.sources=applications/backend \
+                            -Dsonar.host.url=${SONAR_HOST} \
+                            -Dsonar.login=${SONAR_TOKEN}
+                    """
+                    // Frontend scan could be added here
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                container('docker') {
+                    sh """
+                        docker build -t ${BACKEND_IMAGE}:${IMAGE_TAG} -t ${BACKEND_IMAGE}:latest applications/backend/
+                        docker build -t ${FRONTEND_IMAGE}:${IMAGE_TAG} -t ${FRONTEND_IMAGE}:latest applications/frontend/
+                    """
+                }
+            }
+        }
+
+        stage('Trivy Image Scan') {
+            steps {
+                container('trivy') {
+                    sh """
+                        trivy image --exit-code 1 --severity CRITICAL --format table --timeout 10m ${BACKEND_IMAGE}:${IMAGE_TAG}
+                        trivy image --exit-code 1 --severity CRITICAL --format table --timeout 10m ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Push to GAR') {
+            steps {
+                container('docker') {
+                    sh """
+                        echo '${GAR_CREDENTIALS}' | docker login -u _json_key --password-stdin https://${GAR_REGION}-docker.pkg.dev
+                        docker push ${BACKEND_IMAGE}:${IMAGE_TAG}
+                        docker push ${BACKEND_IMAGE}:latest
+                        docker push ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                        docker push ${FRONTEND_IMAGE}:latest
+                    """
+                }
+            }
+        }
+
+        stage('Update Manifests') {
+            steps {
+                container('tools') {
+                    sh """
+                        git config user.email "jenkins@nexops.local"
+                        git config user.name "Jenkins CI"
+
+                        sed -i 's|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${IMAGE_TAG}|g' applications/k8s/backend-deployment.yaml
+                        sed -i 's|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${IMAGE_TAG}|g' applications/k8s/frontend-deployment.yaml
+
+                        git add applications/k8s/
+                        git commit -m "ci: update images to ${IMAGE_TAG} [skip ci]" || echo "No changes"
+                        git push https://${GIT_CREDENTIALS_USR}:${GIT_CREDENTIALS_PSW}@github.com/ichramsyah/nexops-platform.git HEAD:main
+                    """
+                }
+            }
+        }
+    }
+}

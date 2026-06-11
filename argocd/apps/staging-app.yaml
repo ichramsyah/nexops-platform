@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexops-app-staging
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: nexops-platform
+    tier: application
+    environment: staging
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ichramsyah/nexops-platform.git
+    targetRevision: HEAD
+    path: applications/nexops-app/k8s
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,31 @@
+# ArgoCD App-of-Apps — Root Application
+# This single ArgoCD Application manages ALL other Applications.
+# Once this is applied, ArgoCD will automatically discover and deploy
+# every app defined under argocd/apps/
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nexops-root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    app.kubernetes.io/name: nexops-root
+    app.kubernetes.io/part-of: nexops-platform
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/ichramsyah/nexops-platform.git
+    targetRevision: HEAD
+    path: argocd/apps
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true

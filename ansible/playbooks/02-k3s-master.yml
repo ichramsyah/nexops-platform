@@ -1,0 +1,11 @@
+---
+# playbooks/02-k3s-master.yml
+# Installs K3s control plane and saves node token + kubeconfig
+- name: Bootstrap K3s Master (Control Plane)
+  hosts: master
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: k3s-master
+      tags: [k3s, master]

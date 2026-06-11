@@ -1,0 +1,17 @@
+---
+# playbooks/03-k3s-worker.yml
+# Joins worker node to the K3s cluster using token saved by master play
+- name: Bootstrap K3s Worker (Agent Node)
+  hosts: worker
+  become: true
+  gather_facts: true
+
+  # Import the master play first so the token fact is in memory
+  pre_tasks:
+    - name: Refresh master host facts (to get k3s_node_token)
+      ansible.builtin.setup:
+      delegate_to: nexops-master
+
+  roles:
+    - role: k3s-worker
+      tags: [k3s, worker]

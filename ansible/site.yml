@@ -1,0 +1,8 @@
+---
+# ansible/site.yml
+# Main playbook to orchestrate all deployment phases for NexOps Platform
+
+- import_playbook: playbooks/01-common.yml
+- import_playbook: playbooks/04-postgresql.yml
+- import_playbook: playbooks/02-k3s-master.yml
+- import_playbook: playbooks/03-k3s-worker.yml

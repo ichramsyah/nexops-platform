@@ -1,0 +1,76 @@
+---
+# roles/postgresql/tasks/main.yml
+# Purpose: Install and configure standalone PostgreSQL on nexops-db VM
+#          Creates databases for SonarQube and application use
+
+- name: Install PostgreSQL and dependencies
+  ansible.builtin.apt:
+    name:
+      - postgresql
+      - postgresql-contrib
+      - python3-psycopg2
+      - libpq-dev
+    state: present
+    update_cache: true
+  become: true
+
+- name: Ensure PostgreSQL service is started and enabled
+  ansible.builtin.systemd:
+    name: postgresql
+    state: started
+    enabled: true
+  become: true
+
+- name: Configure PostgreSQL to listen on all interfaces
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/14/main/postgresql.conf
+    regexp: "^#?listen_addresses"
+    line: "listen_addresses = '*'"
+    backup: true
+  become: true
+  notify: Restart PostgreSQL
+
+- name: Allow connections from the Kubernetes subnet in pg_hba.conf
+  ansible.builtin.blockinfile:
+    path: /etc/postgresql/14/main/pg_hba.conf
+    block: |
+      # Allow connections from nexops VPC subnet
+      host    all             all             10.0.1.0/24             md5
+    marker: "# {mark} ANSIBLE NEXOPS MANAGED"
+    backup: true
+  become: true
+  notify: Restart PostgreSQL
+
+- name: Create PostgreSQL users
+  community.postgresql.postgresql_user:
+    name: "{{ item.name }}"
+    password: "{{ item.password }}"
+    state: present
+  become: true
+  become_user: postgres
+  loop:
+    - { name: "sonarqube", password: "sonarqube_secret_pw" }
+    - { name: "nexops_app", password: "nexops_app_secret_pw" }
+
+- name: Create PostgreSQL databases
+  community.postgresql.postgresql_db:
+    name: "{{ item.db }}"
+    owner: "{{ item.owner }}"
+    state: present
+  become: true
+  become_user: postgres
+  loop:
+    - { db: "sonarqube",   owner: "sonarqube" }
+    - { db: "nexops_app",  owner: "nexops_app" }
+
+- name: Grant all privileges on databases to respective users
+  community.postgresql.postgresql_privs:
+    database: "{{ item.db }}"
+    privs: ALL
+    type: database
+    role: "{{ item.owner }}"
+  become: true
+  become_user: postgres
+  loop:
+    - { db: "sonarqube",  owner: "sonarqube" }
+    - { db: "nexops_app", owner: "nexops_app" }

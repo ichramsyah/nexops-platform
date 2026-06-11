@@ -1,0 +1,98 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: jenkins
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: nexops-platform
+    tier: devops
+spec:
+  project: default
+  source:
+    repoURL: https://charts.jenkins.io
+    chart: jenkins
+    targetRevision: 5.1.30
+    helm:
+      values: |
+        controller:
+          serviceType: ClusterIP
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+              nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+            hostName: jenkins.nexops.local
+            tls:
+              - secretName: jenkins-tls
+                hosts:
+                  - jenkins.nexops.local
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+            limits:
+              cpu: "2"
+              memory: "3Gi"
+          # Pre-install critical plugins
+          installPlugins:
+            - kubernetes:latest
+            - workflow-aggregator:latest
+            - git:latest
+            - blueocean:latest
+            - sonar:latest
+            - docker-workflow:latest
+            - credentials-binding:latest
+            - pipeline-stage-view:latest
+            - github:latest
+          # Jenkins admin credentials (use External Secrets in prod)
+          adminUser: admin
+          adminPassword: "nexops-jenkins-2024"
+          # Cloud configuration for dynamic K8s agents
+          JCasC:
+            configScripts:
+              kubernetes-cloud: |
+                jenkins:
+                  clouds:
+                    - kubernetes:
+                        name: "nexops-k8s"
+                        serverUrl: "https://kubernetes.default.svc"
+                        namespace: "devops"
+                        jenkinsUrl: "http://jenkins.devops.svc.cluster.local:8080"
+                        jenkinsTunnel: "jenkins-agent.devops.svc.cluster.local:50000"
+                        podRetention: "never"
+                        templates:
+                          - name: "nexops-agent"
+                            namespace: "devops"
+                            label: "nexops-agent"
+                            containers:
+                              - name: "jnlp"
+                                image: "jenkins/inbound-agent:latest"
+                                resourceRequestMemory: "512Mi"
+                                resourceLimitMemory: "1Gi"
+                              - name: "docker"
+                                image: "docker:dind"
+                                privileged: true
+                                resourceRequestMemory: "512Mi"
+                                resourceLimitMemory: "2Gi"
+                              - name: "trivy"
+                                image: "aquasec/trivy:latest"
+                                command: "cat"
+                                ttyEnabled: true
+                              - name: "sonar-scanner"
+                                image: "sonarsource/sonar-scanner-cli:latest"
+                                command: "cat"
+                                ttyEnabled: true
+
+        persistence:
+          enabled: true
+          size: 10Gi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: devops
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

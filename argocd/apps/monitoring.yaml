@@ -1,0 +1,76 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: monitoring
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: nexops-platform
+    tier: observability
+spec:
+  project: default
+  source:
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: 58.6.0
+    helm:
+      values: |
+        grafana:
+          enabled: true
+          adminPassword: "nexops-grafana-2024"
+          ingress:
+            enabled: true
+            ingressClassName: nginx
+            annotations:
+              cert-manager.io/cluster-issuer: letsencrypt-prod
+            hosts:
+              - grafana.nexops.local
+            tls:
+              - secretName: grafana-tls
+                hosts:
+                  - grafana.nexops.local
+          persistence:
+            enabled: true
+            size: 5Gi
+          dashboardProviders:
+            dashboardproviders.yaml:
+              apiVersion: 1
+              providers:
+                - name: default
+                  folder: NexOps
+                  type: file
+                  options:
+                    path: /var/lib/grafana/dashboards/default
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+
+        prometheus:
+          prometheusSpec:
+            retention: 15d
+            storageSpec:
+              volumeClaimTemplate:
+                spec:
+                  accessModes: ["ReadWriteOnce"]
+                  resources:
+                    requests:
+                      storage: 20Gi
+
+        alertmanager:
+          enabled: true
+
+        nodeExporter:
+          enabled: true
+
+        kubeStateMetrics:
+          enabled: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

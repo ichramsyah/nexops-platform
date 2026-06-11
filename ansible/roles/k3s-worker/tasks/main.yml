@@ -1,0 +1,36 @@
+---
+# roles/k3s-worker/tasks/main.yml
+# Purpose: Join this node to the existing K3s cluster as an agent
+
+- name: Check if K3s agent is already installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/k3s
+  register: k3s_binary
+
+- name: Download and install K3s agent (join cluster)
+  ansible.builtin.shell: |
+    curl -sfL https://get.k3s.io | K3S_URL=https://{{ hostvars['nexops-master']['ansible_host'] }}:6443 \
+      K3S_TOKEN={{ hostvars['nexops-master']['k3s_node_token'] }} \
+      INSTALL_K3S_EXEC="agent \
+        --node-name=nexops-worker" sh -
+  when: not k3s_binary.stat.exists
+  become: true
+
+- name: Wait for K3s agent service to be running
+  ansible.builtin.systemd:
+    name: k3s-agent
+    state: started
+    enabled: true
+  become: true
+
+- name: Verify worker joined cluster (from master)
+  ansible.builtin.command: kubectl get nodes -o wide
+  environment:
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+  register: nodes_output
+  delegate_to: nexops-master
+  become: true
+
+- name: Print cluster nodes
+  ansible.builtin.debug:
+    msg: "{{ nodes_output.stdout_lines }}"

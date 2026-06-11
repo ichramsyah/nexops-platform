@@ -1,0 +1,11 @@
+---
+# playbooks/01-common.yml
+# Runs on ALL nodes: OS hardening, kernel parameters, package installation
+- name: Common OS Configuration for All Nexops Nodes
+  hosts: all_nodes
+  become: true
+  gather_facts: true
+
+  roles:
+    - role: common
+      tags: [common, always]
