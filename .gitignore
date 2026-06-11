@@ -49,3 +49,6 @@ Thumbs.db
 *.log
 trivy-*.txt
 trivy-*.json
+
+token-github.txt
+token-sonar.txt

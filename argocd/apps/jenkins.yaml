@@ -47,6 +47,7 @@ spec:
             - credentials-binding:latest
             - pipeline-stage-view:latest
             - github:latest
+            - configuration-as-code:latest
           # Jenkins admin credentials (use External Secrets in prod)
           admin:
             username: admin
