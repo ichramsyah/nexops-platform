@@ -15,6 +15,7 @@ spec:
     helm:
       values: |
         controller:
+          tag: "2.541.2-jdk17"
           serviceType: ClusterIP
           ingress:
             enabled: true
