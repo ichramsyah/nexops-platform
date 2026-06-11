@@ -46,8 +46,9 @@ spec:
             - pipeline-stage-view:latest
             - github:latest
           # Jenkins admin credentials (use External Secrets in prod)
-          adminUser: admin
-          adminPassword: "nexops-jenkins-2024"
+          admin:
+            username: admin
+            password: "nexops-jenkins-2024"
           # Cloud configuration for dynamic K8s agents
           JCasC:
             configScripts:
