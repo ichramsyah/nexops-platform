@@ -13,7 +13,7 @@ spec:
     repoURL: https://github.com/ichramsyah/nexops-platform.git
     # Production tracks a release tag, not HEAD, for stability
     targetRevision: HEAD
-    path: applications/nexops-app/k8s
+    path: applications/k8s
   destination:
     server: https://kubernetes.default.svc
     namespace: prod
