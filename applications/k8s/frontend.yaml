@@ -18,7 +18,7 @@ spec:
         - name: gar-pull-secret
       containers:
         - name: nexops-frontend
-          image: asia-southeast2-docker.pkg.dev/rinemaa-457218/nexops-app/frontend:14-b5bf5f4
+          image: asia-southeast2-docker.pkg.dev/rinemaa-457218/nexops-app/frontend:15-e21d392
           ports:
             - containerPort: 80
           resources:
