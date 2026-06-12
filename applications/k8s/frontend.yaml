@@ -14,6 +14,8 @@ spec:
       labels:
         app: nexops-frontend
     spec:
+      imagePullSecrets:
+        - name: gar-pull-secret
       containers:
         - name: nexops-frontend
           image: asia-southeast2-docker.pkg.dev/rinemaa-457218/nexops-app/frontend:14-b5bf5f4
