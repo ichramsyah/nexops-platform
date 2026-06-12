@@ -19,7 +19,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: nexops-backend
-          image: asia-southeast2-docker.pkg.dev/rinemaa-457218/nexops-app/backend:latest
+          image: asia-southeast2-docker.pkg.dev/rinemaa-457218/nexops-app/backend:14-b5bf5f4
           ports:
             - containerPort: 8080
           env:
