@@ -33,7 +33,6 @@ function App() {
             <div className="data-card">
               <p><strong>Platform:</strong> {backendData.platform}</p>
               <p><strong>Author:</strong> {backendData.author}</p>
-              <p><strong>Company:</strong> {backendData.company}</p>
               <h3>Tech Stack</h3>
               <ul>
                 {Object.entries(backendData.stack).map(([key, value]) => (

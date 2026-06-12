@@ -107,7 +107,6 @@ func infoHandler(w http.ResponseWriter, r *http.Request) {
 	info := map[string]interface{}{
 		"platform": "NexOps Platform",
 		"author":   "Ichramsyah Abdurrachman",
-		"company":  "PT. Teknologi Aksara Nusantara",
 		"stack": map[string]string{
 			"infra":         "Terraform + GCP Compute Engine",
 			"config_mgmt":   "Ansible",
