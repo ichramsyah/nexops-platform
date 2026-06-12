@@ -30,9 +30,6 @@ spec:
       image: aquasec/trivy:latest
       command: ['cat']
       tty: true
-      env:
-        - name: DOCKER_HOST
-          value: tcp://localhost:2375
     - name: sonar-scanner
       image: sonarsource/sonar-scanner-cli:latest
       command: ['cat']
@@ -120,6 +117,9 @@ spec:
         }
 
         stage('Trivy Image Scan') {
+            environment {
+                DOCKER_HOST = 'tcp://localhost:2375'
+            }
             steps {
                 container('trivy') {
                     sh """
