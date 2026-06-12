@@ -148,8 +148,9 @@ spec:
                         git config user.email "jenkins@nexops.local"
                         git config user.name "Jenkins CI"
 
-                        sed -i 's|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${IMAGE_TAG}|g' applications/k8s/backend.yaml
-                        sed -i 's|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${IMAGE_TAG}|g' applications/k8s/frontend.yaml
+                        sed -i 's|image: ${BACKEND_IMAGE}:.*|image: ${BACKEND_IMAGE}:${IMAGE_TAG}|g' applications/k8s/base/backend.yaml
+                        sed -i 's|image: ${FRONTEND_IMAGE}:.*|image: ${FRONTEND_IMAGE}:${IMAGE_TAG}|g' applications/k8s/base/frontend.yaml
+
 
                         git add applications/k8s/
                         git commit -m "ci: update images to ${IMAGE_TAG} [skip ci]" || echo "No changes"

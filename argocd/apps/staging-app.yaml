@@ -12,7 +12,7 @@ spec:
   source:
     repoURL: https://github.com/ichramsyah/nexops-platform.git
     targetRevision: HEAD
-    path: applications/k8s
+    path: applications/k8s/overlays/staging
   destination:
     server: https://kubernetes.default.svc
     namespace: staging
