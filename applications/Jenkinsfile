@@ -117,14 +117,11 @@ spec:
         }
 
         stage('Trivy Image Scan') {
-            environment {
-                DOCKER_HOST = 'tcp://localhost:2375'
-            }
             steps {
-                container('trivy') {
+                container('docker') {
                     sh """
-                        trivy image --exit-code 1 --severity CRITICAL --format table --timeout 10m ${BACKEND_IMAGE}:${IMAGE_TAG}
-                        trivy image --exit-code 1 --severity CRITICAL --format table --timeout 10m ${FRONTEND_IMAGE}:${IMAGE_TAG}
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --exit-code 1 --severity CRITICAL --format table --timeout 10m ${BACKEND_IMAGE}:${IMAGE_TAG}
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy:latest image --exit-code 1 --severity CRITICAL --format table --timeout 10m ${FRONTEND_IMAGE}:${IMAGE_TAG}
                     """
                 }
             }
