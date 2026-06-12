@@ -56,7 +56,7 @@ spec:
         FRONTEND_IMAGE  = "${IMAGE_PREFIX}/frontend"
 
         // SonarQube
-        SONAR_HOST      = "http://sonarqube.devops.svc.cluster.local:9000"
+        SONAR_HOST      = "http://sonarqube-sonarqube.devops.svc.cluster.local:9000"
 
         // Credentials
         GAR_CREDENTIALS     = credentials('gcp-gar-service-account-key')
