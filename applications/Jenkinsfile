@@ -143,7 +143,7 @@ spec:
 
         stage('Update Manifests') {
             steps {
-                container('tools') {
+                container('jnlp') {
                     sh """
                         git config user.email "jenkins@nexops.local"
                         git config user.name "Jenkins CI"
