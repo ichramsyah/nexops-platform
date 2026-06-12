@@ -19,6 +19,7 @@ spec:
       image: docker:dind
       securityContext:
         privileged: true
+      args: ["--mtu=1400"]
       env:
         - name: DOCKER_TLS_CERTDIR
           value: ""
