@@ -19,7 +19,7 @@ spec:
           enabled: false
         jdbcOverwrite:
           enable: true
-          jdbcUrl: "jdbc:postgresql://nexops-db:5432/sonarqube"
+          jdbcUrl: "jdbc:postgresql://nexops-db.default.svc.cluster.local:5432/sonarqube"
           jdbcUsername: "sonarqube"
           jdbcPassword: "sonarqube_secret_pw"
 
