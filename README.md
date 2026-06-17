@@ -6,6 +6,45 @@ An enterprise-grade platform engineering workspace designed to showcase zero-tru
 
 ---
 
+## 📖 Table of Contents
+
+- [📋 Overview](#-overview)
+- [⚡ Core Capabilities](#-core-capabilities)
+- [✨ Key Features](#-key-features)
+- [🏗️ Architecture](#-architecture)
+- [⚙️ Infrastructure](#-infrastructure)
+- [🛠️ Provisioning](#-provisioning)
+- [🐧 OS Management](#-os-management)
+- [☸️ Cluster Management](#-cluster-management)
+- [📂 Project Structure](#-project-structure)
+- [💻 Application Architecture](#-application-architecture)
+- [🔄 How It Works](#-how-it-works)
+- [🔀 Data Flow](#-data-flow)
+- [🎨 UX Overview](#-ux-overview)
+- [🏗️ Continuous Integration (CI)](#-continuous-integration-ci)
+- [🚀 Continuous Delivery (CD) & GitOps](#-continuous-delivery-cd--gitops)
+- [🛡️ DevSecOps Pipeline](#-devsecops-pipeline)
+- [📊 Monitoring & Logging](#-monitoring--logging)
+- [🗄️ Database Configurations](#-database-configurations)
+- [🔌 API Documentation](#-api-documentation)
+- [🔑 Authentication & Secrets Management](#-authentication--secrets-management)
+- [🔌 Integrations](#-integrations)
+- [🚀 Installation & Setup](#-installation--setup)
+- [🔧 Configuration](#-configuration)
+- [📈 Usage](#-usage)
+- [🚢 Deployment](#-deployment)
+- [💾 DR & Backup](#-dr--backup)
+- [🔒 Security Posture](#-security-posture)
+- [🔍 Troubleshooting](#-troubleshooting)
+- [💬 FAQ](#-faq)
+- [🔮 Future Improvements](#-future-improvements)
+- [🤝 Contributing](#-contributing)
+- [📄 License](#-license)
+- [💖 Acknowledgements](#-acknowledgements)
+
+---
+
+
 ## 📋 Overview
 
 The **NexOps Platform** is an end-to-end, self-managed cloud and Kubernetes platform built entirely on Google Cloud Platform (GCP). Bypassing managed Kubernetes services like Google Kubernetes Engine (GKE) to demonstrate deep infrastructure and systems-level competence, this project provisions virtual machines on GCP Compute Engine using **Terraform**, configures host operating systems and bootstraps a lightweight **K3s cluster** using **Ansible**, and automates applications and systems software deployment using **ArgoCD** following **GitOps** best practices.
