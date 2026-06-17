@@ -92,6 +92,7 @@ The underlying infrastructure is defined using modularized Terraform code locate
   - `allow-k8s-nodeports`: Opens ports 30000-32767 for external service validation testing.
   - `allow-vpc-internal`: Permits unrestricted communication between all internal IP addresses on the `10.0.1.0/24` subnet.
 - **Instance Allocation**:
+  ![GCP VM Instances List](capture/gcp/compute-engine-VM-instances-list.png)
   - `nexops-master`: Instantiated on an `e2-medium` machine type with a 30 GB SSD boot disk.
   - `nexops-worker`: Instantiated on an `e2-standard-4` machine type with a 60 GB SSD boot disk.
   - `nexops-db`: Instantiated on an `e2-small` machine type with a 20 GB SSD boot disk. No external IP is assigned to this instance.
@@ -363,6 +364,8 @@ When a client loads the application dashboard, traffic is routed through the sys
 
 ## 🎨 UX Overview
 
+![Application Dashboard](capture/app.png)
+
 The frontend dashboard interface is built to provide an interactive control panel for platform administrators:
 
 - **Glassmorphic Theme**: Dark mode design (`bg-[#0d0e12]`) featuring subtle indigo/purple blurred background blobs, translucent panels, and thin borders (`border-slate-800/80`).
@@ -381,6 +384,9 @@ The frontend dashboard interface is built to provide an interactive control pane
 
 ## 🏗️ Continuous Integration (CI)
 
+![Jenkins Pipeline View](capture/jenkins/cd-cd-pipeline-jenkins-view.png)
+![Jenkins Blue Ocean View](capture/jenkins/blue-ocean-pipeline-view.png)
+
 Continuous Integration is managed via a declarative Jenkins pipeline script [applications/Jenkinsfile](file:///d:/Github%20All%20Repo/nexops-platform/applications/Jenkinsfile) executed inside a Kubernetes cloud provider.
 
 - **Dynamic Agent Pod**: Configured dynamically using a Pod Template containing:
@@ -396,6 +402,8 @@ Continuous Integration is managed via a declarative Jenkins pipeline script [app
 
 ## 🚀 Continuous Delivery (CD) & GitOps
 
+![ArgoCD Application Dashboard](capture/argocd/argocd-all.png)
+
 Continuous delivery follows the GitOps pattern managed by ArgoCD.
 
 - **Parent Root Application**: The `nexops-root` application in [argocd/app-of-apps.yaml](file:///d:/Github%20All%20Repo/nexops-platform/argocd/app-of-apps.yaml) tracks the directory `argocd/apps/` inside the Git repository.
@@ -407,6 +415,8 @@ Continuous delivery follows the GitOps pattern managed by ArgoCD.
 ---
 
 ## 🛡️ DevSecOps Pipeline
+
+![SonarQube Code Quality](capture/sonarqube.png)
 
 The DevSecOps pipeline builds safety checks directly into the continuous integration steps.
 
@@ -424,6 +434,8 @@ The DevSecOps pipeline builds safety checks directly into the continuous integra
 ---
 
 ## 📊 Monitoring & Logging
+
+![Grafana Dashboard](capture/grafana/kubernetes-compute-resource-cluster.png)
 
 Telemetry operations are managed by Prometheus, Grafana, and Alertmanager deployed via Helm.
 
@@ -678,7 +690,9 @@ Navigate to `http://localhost:3000` (User: `admin`, Password: `nexops-grafana-20
 The application features separate deployment overlay options:
 
 - **Base Files**: Contains base Kubernetes configuration manifests under `applications/k8s/base/`. Tracks `app.nexops.local` (production).
+  ![Production Sync](capture/argocd/nexops-app-prod.png)
 - **Staging Patch**: Configured inside `applications/k8s/overlays/staging/` to patch host names to `staging.nexops.local` using Kustomize:
+  ![Staging Sync](capture/argocd/nexops-app-staging.png)
   ```yaml
   patches:
     - patch: |
