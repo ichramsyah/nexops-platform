@@ -435,7 +435,16 @@ The DevSecOps pipeline builds safety checks directly into the continuous integra
 
 ## 📊 Monitoring & Logging
 
-![Grafana Dashboard](capture/grafana/kubernetes-compute-resource-cluster.png)
+### Grafana Dashboards Gallery
+
+| Dashboard | Visual Preview |
+| :--- | :--- |
+| **All Dashboards Overview** | ![All Dashboards](capture/grafana/all-dashboard.png) |
+| **Kubernetes Cluster Compute Resources** | ![Compute Cluster Resources](capture/grafana/kubernetes-compute-resource-cluster.png) |
+| **Kubernetes Compute Resources (Namespace/Pods)** | ![Compute Pods Resources](capture/grafana/kubernetes-compute-resource-namepsace-pods.png) |
+| **Node Exporter Host Nodes** | ![Node Exporter Nodes](capture/grafana/node-exporter-nodes.png) |
+| **CoreDNS Metrics** | ![CoreDNS](capture/grafana/core-dns.png) |
+| **Kubernetes API Server Telemetry** | ![API Server Telemetry](capture/grafana/kubernetes-api-server.png) |
 
 Telemetry operations are managed by Prometheus, Grafana, and Alertmanager deployed via Helm.
 
