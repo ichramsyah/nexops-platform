@@ -11,6 +11,7 @@ An enterprise-grade platform engineering workspace designed to showcase zero-tru
 - [Overview](#-overview)
 - [Core Capabilities](#-core-capabilities)
 - [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
 - [Architecture](#-architecture)
 - [Infrastructure](#-infrastructure)
 - [Provisioning](#-provisioning)
@@ -73,6 +74,30 @@ Every component in the architecture — from firewalls and subnets to continuous
 - **Dynamic Kubernetes Jenkins Agents**: Lightweight execution environment where CI build agents are created dynamically as Kubernetes pods and torn down immediately upon job completion.
 - **Non-Root Execution Standards**: Backend Go containers run under non-root security contexts (UID 1000) to minimize runtime privilege escalation risks.
 - **Secure Image Registry Integration**: Image pull secrets (`gar-pull-secret`) configured for automatic authentication with Google Artifact Registry (GAR).
+
+---
+
+## 🛠️ Technology Stack
+
+| Layer | Technology | Purpose |
+| :--- | :--- | :--- |
+| **Cloud Hosting** | Google Cloud Platform (GCP) | Hosting VPC, compute instances, router, NAT gateway, and DNS zones |
+| **Infrastructure as Code** | Terraform | Declarative definition of all GCP network, subnet, firewall, and compute instances |
+| **Config Management** | Ansible | Baseline OS hardening, K3s control plane/agent configuration, and PostgreSQL setups |
+| **Orchestration** | K3s (Lightweight Kubernetes) | Multi-node self-managed cluster runner (VXLAN backend Flannel, Traefik disabled) |
+| **GitOps Engine** | ArgoCD | Declarative, self-healing continuous delivery (CD) following the App-of-Apps pattern |
+| **Automation Server** | Jenkins | Dynamic orchestrator running multi-container K8s agent pod runners for CI pipelines |
+| **Static Security (SAST)** | SonarQube | Source code static analysis checking for code smells, bugs, and security gates |
+| **Vulnerability Scanner** | Trivy | Dual-layer filesystem dependency scanning and container image CVE gate checking |
+| **Ingress Controller** | Nginx Ingress | HTTP/S proxy traffic routing for ingress hostnames |
+| **TLS/SSL Certificates** | Cert-Manager + Let's Encrypt | Automatic certificate generation and renewal via HTTP-01 challenge challenges |
+| **Observability (Metrics)** | Prometheus | Cluster-wide metric collection and Alertmanager paging configuration |
+| **Observability (UI)** | Grafana | System telemetry data visualization (Node Exporter, CoreDNS, API dashboards) |
+| **Observability (Logs)** | Loki + Promtail | Centralized system log shipping and aggregation |
+| **Relational Database** | PostgreSQL 14 | Standalone VM database hosting SonarQube storage and React Go data |
+| **Backend API** | Go (Golang 1.24) | RESTful API service running in a secure, non-root Alpine container |
+| **Frontend UI** | React 19 + Vite 8 | Glassmorphic dashboard interface compiled via Vite and served via Nginx |
+| **Container Registry** | Google Artifact Registry (GAR) | Registry storing backend and frontend Docker builds |
 
 ---
 
