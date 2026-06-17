@@ -1,0 +1,34 @@
+How do you build a secure, production-grade DevSecOps platform completely from scratch? 🛠️
+
+Many engineers rely on managed services like GKE or EKS to handle orchestration, but bypassing those shortcuts to build everything on raw Virtual Machines reveals the real complexities of platform engineering. 
+
+To demonstrate this end-to-end integration, I built NexOps—a self-managed Kubernetes GitOps and DevSecOps workspace on Google Cloud Platform. 
+
+Here is the engineering breakdown of what powers NexOps:
+
+🏗️ 1. Infrastructure-as-Code & OS Baseline
+• Provisioned GCP subnets, custom firewalls, Cloud NAT, and virtual machines via Terraform.
+• Configured baseline OS parameters, kernel modules, host resolution, and PostgreSQL database setups using Ansible.
+• Bootstrapped K3s Control Plane and Worker nodes manually.
+
+🔄 2. GitOps Continuous Delivery (CD)
+• Configured ArgoCD to manage the entire cluster layout using the "App-of-Apps" pattern.
+• Automated self-healing to prevent cluster drift from Git configurations.
+• Managed environment configurations via Kustomize overlays, isolating staging (staging.nexops.local) and production (app.nexops.local) to avoid ingress admission conflicts.
+
+🛡️ 3. Continuous Security (DevSecOps) & SAST
+• Built a 7-stage Jenkins CI pipeline running on dynamic K8s runner pods.
+• Integrated static analysis gates (SonarQube) and code scans (Trivy FS).
+• Shared Docker-in-Docker socket executors to scan container images for CRITICAL vulnerabilities, blocking releases on failures before pushing to Google Artifact Registry.
+
+📊 4. Zero-Trust Security & Observability
+• Implemented default-deny Kubernetes NetworkPolicies to block unauthorized lateral traffic.
+• Deployed a Go REST API running as a non-privileged user (UID 1000).
+• Configured Prometheus scraping and designed custom Grafana dashboards to monitor hosts, API server performance, and cluster resources.
+
+Building this project taught me invaluable lessons in stateful database isolation (routing to a standalone database VM via K8s headless services) and resolving nested Docker container executor permission conflicts.
+
+Check out the full repository and architecture diagrams here:
+👉 [https://github.com/ichramsyah/nexops-platform]
+
+#DevOps #PlatformEngineering #Kubernetes #GitOps #Terraform #Ansible #GCP #DevSecOps #CloudArchitecture
