@@ -18,6 +18,7 @@ spec:
           image:
             tag: "2.541.2-jdk17"
           serviceType: ClusterIP
+          overwritePlugins: true
           ingress:
             enabled: true
             ingressClassName: nginx
